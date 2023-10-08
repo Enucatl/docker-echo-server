@@ -1,0 +1,79 @@
+name: build from source
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/build.yaml
+      - build/*
+  pull_request:
+    paths:
+      - .github/workflows/build.yaml
+      - build/*
+
+env:
+  DOCKER_REPO: ghcr.io/enucatl/echo-server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Set version
+        id: version
+        run: echo "::set-output name=version::`cat build/VERSION`"
+      - name: Set repo
+        id: repo
+        run: if [[ $GITHUB_REF == "refs/heads/master" ]]; then echo "::set-output name=repo::${DOCKER_REPO}"; else echo "::set-output name=repo::${DOCKER_REPO_DEV}"; fi
+      - name: Docker meta
+        id: docker_meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.repo.outputs.repo }}
+      - name: Build image without push to registry
+        uses: docker/build-push-action@v5
+        with:
+          context: ./build
+          file: ./build/Dockerfile
+          push: true
+          tags: localhost:5000/echo-server:latest
+      - name: Scan image
+        id: scan
+        uses: anchore/scan-action@v2
+        with:
+          image: localhost:5000/echo-server:latest
+          fail-build: true
+          severity-cutoff: critical
+          acs-report-enable: true
+      - name: Inspect action SARIF report
+        run: cat ${{ steps.scan.outputs.sarif }}
+      - name: Upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./build
+          file: ./build/Dockerfile
+          platforms: ${{ env.PLATFORMS }}
+          tags: |
+            ${{ steps.repo.outputs.repo }}:build
+            ${{ steps.repo.outputs.repo }}:${{ steps.version.outputs.version }}-build
+            ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+          push: ${{ github.event_name != 'pull_request' }}

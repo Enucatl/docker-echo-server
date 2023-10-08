@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  echo-server:
+    image: ghcr.io/enucatl/echo-server:master
+    user: "10000:10000"
+    build:
+      context: ./build/
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+    networks:
+      - traefik_proxy
+
+networks:
+  traefik_proxy:
+    external: true
