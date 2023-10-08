@@ -3,7 +3,6 @@ version: '3.8'
 services:
   echo-server:
     image: ghcr.io/enucatl/echo-server:master
-    user: "10000:10000"
     build:
       context: ./build/
       dockerfile: Dockerfile
