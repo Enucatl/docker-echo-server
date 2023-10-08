@@ -3,6 +3,7 @@
 import platform
 import asyncio
 import socket
+from datetime import datetime
 
 PORT_ECHO_UDP = 4001
 PORT_ECHO_TCP = 5001
@@ -17,21 +18,23 @@ class UdpEchoServer:
 
     def datagram_received(self, data, addr):
         in_msg = data.decode().strip()
-        print(f"UDP: Received {in_msg} from {addr}")
-        out_msg = f"UDP: {SERVER_NAME} received: {in_msg}\n"
+        reply = f"[{datetime.now()}] - UDP: {SERVER_NAME} received {in_msg} from {addr}"
+        print(reply)
+        out_msg = f"{reply}\n"
         self.transport.sendto(out_msg.encode(), addr)
 
 
 class TcpEchoServer(asyncio.Protocol):
     def connection_made(self, transport):
         self.peername = transport.get_extra_info("peername")
-        print(f"TCP: Connection from {self.peername}")
+        print(f"[{datetime.now()}] - TCP: Connection from {self.peername}")
         self.transport = transport
 
     def data_received(self, data):
         in_msg = data.decode().strip()
-        print(f"TCP: Received: {in_msg} from {self.peername}")
-        out_msg = f"TCP: {SERVER_NAME} received: {in_msg}\n"
+        reply = f"[{datetime.now()}] - TCP: {SERVER_NAME} received {in_msg} from {self.peername}"
+        print(reply)
+        out_msg = f"{reply}\n"
         self.transport.write(out_msg.encode())
 
 
