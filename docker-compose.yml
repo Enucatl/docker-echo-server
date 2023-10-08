@@ -11,9 +11,3 @@ services:
     ports:
       - "4001:4001"
       - "5001:5001"
-    networks:
-      - traefik_proxy
-
-networks:
-  traefik_proxy:
-    external: true
