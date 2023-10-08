@@ -10,8 +10,18 @@ services:
     ports:
       - "4001:4001/udp"
       - "5001:5001"
+    networks:
+      - default
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv6.conf.eth0.proxy_ndp=1
 
 
 networks:
   default:
     enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.23.0.0/16
+          gateway: 172.23.0.1

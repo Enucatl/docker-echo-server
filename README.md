@@ -8,15 +8,10 @@ Available on Docker Hub as `vhiribarren/echo-server`
 
 Run memo:
 
-    $ docker run --rm -p 4001:4001/udp -p 5001:5001 --name echo-server vhiribarren/echo-server
+    $ docker compose build
+    $ docker compose run --rm -it --service-ports echo-server
 
 Test memo:
 
-    $ nc -u -4 localhost 4001 # may be necessary to force IPv4 on MacOS
+    $ nc -u localhost 4001 # may be necessary to force IPv4 on MacOS
     $ nc localhost 5001
-
-Maintenance memo:
-
-    $ docker build -t vhiribarren/echo-server .
-    $ docker login
-    $ docker push vhiribarren/echo-server
