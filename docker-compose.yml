@@ -10,3 +10,8 @@ services:
     ports:
       - "4001:4001/udp"
       - "5001:5001"
+
+
+networks:
+  default:
+    enable_ipv6: true
