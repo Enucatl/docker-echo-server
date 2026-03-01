@@ -6,8 +6,8 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "4001:4001/udp"
-      - "5001:5001"
+      - "12001:4001/udp"
+      - "13001:5001"
     networks:
       - default
     sysctls:
