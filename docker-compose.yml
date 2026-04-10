@@ -1,5 +1,8 @@
 services:
   echo-server:
+    extends:
+      file: ../compose-security-baseline/hardening.yml
+      service: hardened-small
     image: ghcr.io/enucatl/echo-server:master
     build:
       context: ./build/
