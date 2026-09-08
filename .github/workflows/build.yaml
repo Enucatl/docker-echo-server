@@ -3,7 +3,7 @@ name: build from source
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - .github/workflows/build.yaml
       - build/*
