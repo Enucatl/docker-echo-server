@@ -7,7 +7,7 @@ services:
     build:
       context: ./build/
       dockerfile: Dockerfile
-    restart: unless-stopped
+    restart: "no"
     ports:
       - "12001:4001/udp"
       - "13001:5001"
